@@ -373,7 +373,9 @@ def load_data_models(fname, random_seed, workers, batch_size, pname='logp', retu
     else:
         precomputed_images = False
     if precompute_frame is not None:
-        features = np.zeros((len(smiles),))
+        #features = np.zeros((len(smiles),))
+        features = np.load(precompute_frame).flatten()
+        print(features.shape)
         features = np.nan_to_num(features, nan=0, posinf=0, neginf=0)
         assert (features.shape[0] == len(smiles))
         train_features = features[train_idx]
@@ -385,7 +387,8 @@ def load_data_models(fname, random_seed, workers, batch_size, pname='logp', retu
             rotate = 0
         rotate = 359 if (ensembl and eval) else rotate
 
-
+        print("precomputed frame")
+        print("")
         train_dataset = ImageDatasetPreLoaded(train_smiles, train_features, imputer_pickle,
                                               property_func=get_properety_function(pname),
                                               values=tasks, rot=rotate, bw=bw,

@@ -388,7 +388,6 @@ def load_data_models(fname, random_seed, workers, batch_size, pname='logp', retu
         rotate = 359 if (ensembl and eval) else rotate
 
         print("precomputed frame")
-        print("")
         train_dataset = ImageDatasetPreLoaded(train_smiles, train_features, imputer_pickle,
                                               property_func=get_properety_function(pname),
                                               values=tasks, rot=rotate, bw=bw,

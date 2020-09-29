@@ -140,9 +140,7 @@ class ImageDatasetPreLoaded(Dataset):
 
     def __getitem__(self, item):
         vec = self.descs[item].flatten()
-        print(vec)
         vec = torch.from_numpy(np.nan_to_num(vec, nan=0, posinf=0, neginf=0)).float()
-        print(vec)
         if self.images is not None:
             image = transforms.ToPILImage()(torch.from_numpy(self.images[item].astype(np.float32) / 255.0))
             image = self.transform(image)

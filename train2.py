@@ -11,6 +11,7 @@ from sklearn.model_selection import train_test_split
 from torch.optim.lr_scheduler import ReduceLROnPlateau, CosineAnnealingWarmRestarts
 from torch.utils.data import DataLoader
 from tqdm import tqdm
+from apex import amp
 
 from features.datasets import ImageDatasetInfer, funcs, get_properety_function, ImageDatasetPreLoaded
 from features.generateFeatures import MORDRED_SIZE
@@ -246,7 +247,9 @@ def trainer(model, optimizer, train_loader, test_loader, epochs=5, tasks=1, clas
                 mse_loss = (mask * mse_loss).sum() / torch.sum(mask)
             else:
                 mse_loss = mse_loss.mean()
-            mse_loss.backward()
+
+            with amp.scale_loss(mse_loss, optimizer) as scaled_loss:
+                scaled_loss.backward()
 
             torch.nn.utils.clip_grad_value_(model.parameters(), 10.0)
             optimizer.step()
@@ -318,7 +321,7 @@ def trainer(model, optimizer, train_loader, test_loader, epochs=5, tasks=1, clas
                         'nheads': heads,
                         'ntasks': tasks,
                         'args': args,
-                        }, out)
+                        'amp': amp.state_dict()}, out)
         if earlystopping.early_stop:
             break
     return model, tracker
@@ -457,6 +460,8 @@ if __name__ == '__main__':
     model.to(device)
     optimizer = args.optimizer(model.parameters(), lr=args.lr)
     opt_level = args.amp
+    model, optimizer = amp.initialize(model, optimizer, opt_level=opt_level)
+
 
     print("Number of parameters:",
           sum([np.prod(p.size()) for p in filter(lambda p: p.requires_grad, model.parameters())]))

@@ -165,7 +165,7 @@ def run_eval(model, train_loader, ordinal=False, classifacation=False, enseml=Tr
             predss.append(pred.detach().cpu().numpy().flatten())
 
         preds = np.concatenate(predss, axis=0).flatten()
-        values = np.concatenate(values, axis=0)
+        values = np.concatenate(valuess, axis=0)
         print(preds.shape, values.shape)
         if output_preds is not None:
             print(preds.shape)
